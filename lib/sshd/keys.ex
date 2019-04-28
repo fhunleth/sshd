@@ -13,6 +13,7 @@ defmodule Sshd.Keys do
   """
   def host_key(algorithm, options) do
     cb_options = options[:key_cb_private]
+
     case cb_options[:key_passphrase] do
       nil ->
         # Delegate to system implementation for handling the host keys

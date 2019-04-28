@@ -18,7 +18,6 @@ defmodule Sshd.Default do
     false
   end
 
-
   @doc """
   Return the dynamic port for the given args
   """
@@ -48,6 +47,4 @@ defmodule Sshd.Default do
   def enable?(_interface) do
     true
   end
-
-
 end

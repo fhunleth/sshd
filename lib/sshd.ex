@@ -259,7 +259,6 @@ defmodule Sshd do
       |> Enum.into(%{})
       |> Map.merge(%{pwdfun: pwdfun, system_dir: system_dir})
 
-
     shell_options =
       cond do
         args[:shell] == :iex ->
@@ -287,7 +286,7 @@ defmodule Sshd do
           []
 
         intf ->
-          #[bind_to_device: intf]
+          # [bind_to_device: intf]
           []
       end
 
@@ -356,7 +355,7 @@ defmodule Sshd do
   # Start the SSH Daemon and Report any errors
   #
   defp daemon(name, ip_addr, port, full_options, args) do
-     case :ssh.daemon(ip_addr, port, full_options) do
+    case :ssh.daemon(ip_addr, port, full_options) do
       {:ok, daemon_ref} ->
         Logger.info("Successfully started SSH daemon on interface #{inspect(name)}.")
         ## store the daemon reference, provided it is not hidden.
@@ -364,9 +363,7 @@ defmodule Sshd do
         [name: name, daemon_ref: daemon_ref]
 
       {:error, :eaddrinuse} ->
-        Logger.info(
-          "Address is in use for #{inspect(name)}. Attempting to use old daemon ref..."
-        )
+        Logger.info("Address is in use for #{inspect(name)}. Attempting to use old daemon ref...")
 
         ## if address is in use, chances are that the an old daemon is still running. So we try to use that daemon reference
         daemon_ref = Sshd.Table.get(name)
@@ -378,7 +375,8 @@ defmodule Sshd do
             inspect(port)
           }. Reason: #{inspect(error)}"
         )
-        Logger.error("Configuration #{inspect full_options}")
+
+        Logger.error("Configuration #{inspect(full_options)}")
 
         ## we need to call this here as there is a bug in erlang ssh where a tcp socket can remain
         ## open even when the daemon crashes/ doesn't start:
@@ -434,33 +432,33 @@ defmodule Sshd do
     self_gen_dir = args[:self_gen_dir] || system_dir
 
     if !File.exists?("#{system_dir}/#{@ssh_hostkey_filename}") or
-           !File.exists?("#{system_dir}/#{@ssh_hostkey_filename}.pub") do
-        Logger.info(
-          "One or more ssh key(s) does not exist in the #{system_dir} directory. Using self generated key pair in #{
-            self_gen_dir
-          }."
-        )
+         !File.exists?("#{system_dir}/#{@ssh_hostkey_filename}.pub") do
+      Logger.info(
+        "One or more ssh key(s) does not exist in the #{system_dir} directory. Using self generated key pair in #{
+          self_gen_dir
+        }."
+      )
 
-        unless File.exists?("#{self_gen_dir}/#{@ssh_hostkey_filename}") and
-                 File.exists?("#{self_gen_dir}/#{@ssh_hostkey_filename}.pub") do
-          Logger.info("Generating new RSA key pair...")
-          File.rm_rf!(self_gen_dir)
-          File.mkdir_p!(self_gen_dir)
+      unless File.exists?("#{self_gen_dir}/#{@ssh_hostkey_filename}") and
+               File.exists?("#{self_gen_dir}/#{@ssh_hostkey_filename}.pub") do
+        Logger.info("Generating new RSA key pair...")
+        File.rm_rf!(self_gen_dir)
+        File.mkdir_p!(self_gen_dir)
 
-          case args[:key_passphrase] do
-            {module, func, args} ->
-              rsa_key_passphrase = apply(module, func, args)
-              generate_ssh_key_pair(self_gen_dir, rsa_key_passphrase)
+        case args[:key_passphrase] do
+          {module, func, args} ->
+            rsa_key_passphrase = apply(module, func, args)
+            generate_ssh_key_pair(self_gen_dir, rsa_key_passphrase)
 
-            nil ->
-              generate_ssh_key_pair(self_gen_dir)
-          end
+          nil ->
+            generate_ssh_key_pair(self_gen_dir)
         end
-
-        self_gen_dir
-      else
-        system_dir
       end
+
+      self_gen_dir
+    else
+      system_dir
+    end
   end
 
   #
