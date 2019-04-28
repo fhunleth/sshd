@@ -285,7 +285,7 @@ defmodule Sshd do
         nil ->
           []
 
-        intf ->
+        _intf ->
           # [bind_to_device: intf]
           []
       end
